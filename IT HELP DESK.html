@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#940909">
+<title>IT Help Desk</title>
+<style>
+:root{--red:#990909;--red-light:#d98487;--border:#e5e5e5;--muted:#888}
+*{box-sizing:border-box}
+.hidden{display:none!important}
+body{margin:0;background:#fff;font-family:Arial,Helvetica,sans-serif;color:#171717;min-height:100vh;width:100%;padding:0}
+.laptop{width:100%;min-height:100vh;background:#fff;border:0;border-radius:0;padding:0;position:relative;box-shadow:none;overflow:hidden}
+.camera{display:none}
+.screen{min-height:100vh;display:grid;grid-template-columns:40% 60%;background:#fff;border-radius:0;overflow:hidden}
+.brand-panel{background:var(--red);color:#fff;padding:28px 32px;display:flex;flex-direction:column;position:relative;min-height:100vh}
+.brand{display:flex;align-items:center;gap:13px;font-weight:700;font-size:18px;line-height:1.2}
+.brand-mark{width:43px;height:43px;border:2px solid white;border-radius:50%;display:grid;place-items:center;font-size:25px}
+.brand small{display:block;font-size:9px;font-weight:400;letter-spacing:.3px;margin-top:3px}
+.brand-copy{margin:auto 0}
+.brand-copy h1{font-size:30px;line-height:1.16;margin:0 0 15px;font-weight:750;letter-spacing:-.5px}
+.brand-copy p{font-size:12px;line-height:1.45;margin:0;max-width:230px}
+.help-illustration{height:150px;width:200px;max-width:100%;margin:35px auto 5px;position:relative}
+.help-illustration svg{height:100%;width:auto;display:block;margin:0 auto}
+.form-panel{display:flex;align-items:center;justify-content:center;padding:48px 30px 30px;min-width:0}
+.auth-card{width:min(100%,390px);border:1px solid #e2e2e2;border-radius:10px;padding:19px 20px 23px;box-shadow:0 1px 2px #0000000b}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:23px}
+.tab{height:38px;border:0;border-radius:8px;background:var(--red-light);color:white;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 3px #0002}
+.tab.active{background:var(--red)}
+.field{margin-bottom:15px}
+.field label{display:block;font-size:10px;margin-bottom:6px;color:#333}
+.field input{width:100%;height:34px;border:1px solid #e6e6e6;border-radius:5px;padding:0 10px;font-size:12px;outline:none;background:#fff}
+.field input:focus{border-color:#bd7777;box-shadow:0 0 0 2px #99090912}
+.options{display:flex;align-items:center;justify-content:space-between;margin:-2px 0 19px;font-size:10px;color:#777;gap:8px}
+.remember{display:flex;align-items:center;gap:7px}
+.remember input{accent-color:var(--red);width:12px;height:12px;margin:0}
+.text-link{color:#4d9cf0;text-decoration:none;cursor:pointer;font-size:10px}
+.main-button{width:100%;height:39px;border:0;border-radius:8px;background:var(--red);color:#fff;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 2px 3px #0003}
+.main-button:hover{background:#800707}
+.continue{display:flex;align-items:center;gap:10px;color:#888;font-size:10px;justify-content:center;margin:22px 0 14px}
+.continue:before,.continue:after{content:"";height:1px;background:#eee;flex:1}
+.socials{display:flex;justify-content:center;gap:18px}
+.social{width:64px;height:48px;border-radius:9px;background:var(--red);display:grid;place-items:center;box-shadow:0 2px 3px #0003;cursor:default}
+.social svg{width:23px;height:23px}
+.switch{margin:24px 0 0;text-align:center;color:#888;font-size:10px}
+.switch a{color:#4d9cf0;text-decoration:none;cursor:pointer}
+.signup-fields .field{margin-bottom:12px}
+.signup-fields .field input{height:33px}
+.signup-fields+.main-button{margin-top:7px}
+.modal-overlay{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.72);backdrop-filter:blur(3px)}
+.modal-overlay.hidden{display:none}
+.email-modal{width:min(100%,400px);background:#fff;border-radius:8px;padding:23px 25px 14px;text-align:center;box-shadow:0 4px 20px #0004}
+.email-modal h2{font-size:16px;margin:0 0 18px;font-weight:700}
+.email-modal p{font-size:12px;line-height:1.55;margin:0 auto 20px;max-width:290px}
+.email-modal button{height:32px;max-width:220px;font-size:12px}
+.alert-overlay{background:rgba(0,0,0,.58);backdrop-filter:none}
+.alert-modal{width:min(100%,430px);border-radius:9px;background:#fff;box-shadow:0 6px 25px #0004;padding:0 0 13px;color:#333}
+.alert-heading{padding:15px 17px 4px;font-size:12px;color:#444}
+.alert-message{padding:6px 17px 19px;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+.alert-actions{display:flex;justify-content:flex-end;gap:8px;padding:0 13px}
+.alert-actions button{min-width:61px;border:0;border-radius:18px;background:#dbe7f8;color:#333;padding:9px 13px;font-size:11px;cursor:pointer}
+.alert-actions .ok{background:#24599e;color:white;box-shadow:0 0 0 2px #d3e1f7}
+@media(max-width:700px){body{padding:0;align-items:flex-start}.laptop{width:100%;min-height:100vh;border:0;border-radius:0;padding:0;box-shadow:none}.camera{display:none}.screen{min-height:100vh;grid-template-columns:1fr;border-radius:0}.brand-panel{min-height:auto;padding:23px 25px}.brand-mark{width:36px;height:36px}.brand{font-size:15px}.brand-copy{margin:25px 0 0}.brand-copy h1{font-size:25px;margin-bottom:8px}.brand-copy p{max-width:300px}.help-illustration{display:none}.form-panel{padding:28px 17px;align-items:flex-start}.auth-card{max-width:420px;padding:18px}.signup-fields .field{margin-bottom:10px}}
+
+.dashboard{display:none;height:100vh;background:#fff;width:100%}
+.dashboard.active{display:flex}
+.dash-sidebar{width:236px;flex-shrink:0;background:var(--red);color:#fff;padding:22px 0 18px;display:flex;flex-direction:column;height:100vh;overflow-y:auto}
+.dash-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:13px;line-height:1.15;padding:0 22px;margin-bottom:46px}
+.dash-brand svg{width:36px;height:36px;flex-shrink:0}
+.dash-brand small{display:block;font-size:8px;font-weight:400;letter-spacing:.3px;margin-top:2px}
+.dash-nav{display:grid;gap:6px}
+.dash-nav button,.logout-button{display:flex;align-items:center;gap:16px;width:100%;background:transparent;color:#fff;border:0;text-align:left;padding:14px 28px;font-size:12px;cursor:pointer}
+.dash-nav button svg,.logout-button svg{width:24px;height:24px;flex-shrink:0;stroke:#fff;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.dash-nav button.active,.dash-nav button:hover,.logout-button:hover{background:#ffffff1f}
+.logout-button{margin-top:auto}
+.dash-main{flex:1;min-width:0;height:100vh;overflow-y:auto;background:#fff}
+.topbar{display:flex;align-items:center;gap:18px;padding:14px 26px;position:sticky;top:0;background:#fff;z-index:5}
+.back-btn{border:0;background:none;cursor:pointer;padding:4px;display:grid;place-items:center;color:#111}
+.back-btn svg{width:20px;height:20px;stroke:#111;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.top-title{font-weight:700;font-size:14px;white-space:nowrap}
+.search{flex:1;max-width:520px;height:38px;border:1px solid #e0e0e0;border-radius:10px;padding:0 16px;font-size:12px;outline:none;box-shadow:0 1px 3px #0002;background:#fff}
+.search:focus{border-color:#bd7777}
+.top-right{margin-left:auto;display:flex;align-items:center;gap:16px}
+.bell-btn{width:34px;height:34px;border-radius:50%;border:1px solid #e3e3e3;background:#fff;cursor:pointer;display:grid;place-items:center;box-shadow:0 1px 2px #0001}
+.bell-btn svg{width:17px;height:17px;stroke:#333;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.user-chip{display:flex;align-items:center;gap:8px}
+.chip-avatar{width:28px;height:28px;border-radius:50%;overflow:hidden;background:#e2644f;flex-shrink:0}
+.chip-avatar svg,.avatar-lg svg{width:100%;height:100%;display:block}
+.chip-text{line-height:1.25;overflow-wrap:anywhere}
+.chip-text strong{display:block;font-size:11px;font-weight:600;color:#222}
+.chip-text small{font-size:10px;color:#555}
+.chip-caret{width:14px;height:14px;stroke:#333;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-left:6px}
+.page-body{padding:6px 32px 32px}
+.dash-top{margin:12px 0 25px}
+.dash-top h1{font-size:25px;margin:0 0 6px}
+.dash-top p{margin:0;color:#777;font-size:13px}
+.stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:24px}
+.stat-card,.feature-panel{background:#fff;border:1px solid #e7e7e7;border-radius:10px;padding:20px;box-shadow:0 1px 2px #00000008}
+.stat-card span{font-size:12px;color:#777}
+.stat-card strong{display:block;font-size:28px;margin-top:9px}
+.feature-panel h2{font-size:18px;margin:0 0 15px}
+.feature-panel p{font-size:13px;color:#666;line-height:1.6}
+.feature-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.feature-tile{border:1px solid #e7e7e7;border-radius:8px;padding:16px;background:#fff;text-align:left;cursor:pointer}
+.feature-tile strong{display:block;font-size:14px;margin-bottom:7px;color:#222}
+.feature-tile span{font-size:12px;color:#777;line-height:1.5}
+.dash-action{background:var(--red);border:0;border-radius:6px;padding:10px 14px;color:#fff;font-size:12px;cursor:pointer}
+.dash-form{display:grid;gap:13px;max-width:650px}
+.dash-form label{font-size:12px;font-weight:600}
+.dash-form input,.dash-form select,.dash-form textarea{display:block;width:100%;margin-top:6px;border:1px solid #ddd;border-radius:6px;padding:11px;font:inherit;font-size:13px;background:white}
+.dash-form textarea{min-height:110px;resize:vertical}
+.ticket-list{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+.ticket-list th,.ticket-list td{text-align:left;border-bottom:1px solid #eee;padding:12px 8px}
+.ticket-list th{color:#777;font-weight:600}
+.empty-state{border:1px dashed #ddd;border-radius:8px;padding:24px;color:#777;font-size:13px;text-align:center}
+
+.profile-head{display:flex;align-items:center;gap:14px;margin:4px 0 14px}
+.avatar-lg{width:92px;height:92px;border-radius:50%;overflow:hidden;background:#e2644f;flex-shrink:0}
+.profile-info h2{margin:0;font-size:22px;font-weight:700;line-height:1.1}
+.profile-info small{display:block;font-size:10px;color:#222;margin-top:2px}
+.pline{display:flex;align-items:center;gap:5px;font-size:10px;color:#222;margin-top:3px}
+.pline svg{width:11px;height:11px;stroke:#222;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.profile-card{border:1px solid #e4e4e4;border-radius:10px;box-shadow:0 1px 4px #0001;padding:14px 16px 24px;background:#fff}
+.ptabs{display:flex;gap:22px;margin-bottom:14px}
+.ptab{background:none;border:0;padding:4px 0;font-size:12px;color:#222;cursor:default;font-family:inherit}
+.ptab:disabled{color:#999}
+.pfield{margin-bottom:12px;max-width:520px}
+.pfield label{display:block;font-size:12px;font-weight:600;margin-bottom:5px;color:#111}
+.pfield input{width:100%;height:36px;border:0;border-radius:4px;background:#e8dfdf;padding:0 12px;font-size:13px;color:#444;outline:none;font-family:inherit}
+.pfield input::placeholder{color:#7a7272}
+.pfield input[readonly]{cursor:default}
+.profile-card.editing .pfield input{box-shadow:inset 0 0 0 1.5px #bd7777;background:#efe6e6}
+.pfield input.underline{text-decoration:underline}
+.pactions{display:flex;gap:14px;margin:22px 0 0 80px}
+.pbtn{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:5px;background:#e3e3e3;color:#111;padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 1px 2px #0002}
+.pbtn svg{width:15px;height:15px;stroke:#111;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pbtn:disabled{opacity:.5;cursor:not-allowed}
+.pbtn:not(:disabled):hover{background:#d6d6d6}
+
+.tk-wrap{border:1px solid #e4e4e4;border-radius:10px;box-shadow:0 1px 4px #0001;padding:0 0 18px;background:#fff}
+.tk-tabs{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid #e3e3e3;margin-bottom:14px}
+.tk-tab{background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;padding:14px 0 12px;font-size:12px;font-weight:600;color:#999;cursor:pointer;font-family:inherit}
+.tk-tab:hover{color:#666}
+.tk-tab.active{color:var(--red);border-bottom-color:var(--red)}
+.tk-filters{display:grid;grid-template-columns:1fr 1fr auto;gap:16px;padding:0 16px;margin-bottom:14px;align-items:center;position:relative}
+.tk-select{height:40px;border:1px solid #d9d9d9;border-radius:8px;padding:0 14px;font-size:13px;font-weight:600;color:#222;background:#fff;box-shadow:0 1px 3px #0001;font-family:inherit;cursor:pointer;width:100%}
+.tk-filter-btn{height:40px;min-width:96px;display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid #d9d9d9;border-radius:8px;background:#fff;font-size:13px;font-weight:600;color:#222;box-shadow:0 1px 3px #0001;cursor:pointer;font-family:inherit;padding:0 14px}
+.tk-filter-btn.on{border-color:var(--red);color:var(--red)}
+.tk-filter-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tk-menu{position:absolute;right:16px;top:46px;background:#fff;border:1px solid #e1e1e1;border-radius:8px;box-shadow:0 4px 14px #0002;padding:6px;z-index:4;min-width:150px}
+.tk-menu button{display:block;width:100%;text-align:left;background:none;border:0;padding:8px 10px;border-radius:5px;font-size:12px;cursor:pointer;font-family:inherit;color:#222}
+.tk-menu button:hover{background:#f3f3f3}
+.tk-menu button.sel{color:var(--red);font-weight:700}
+.tk-table{margin:0 16px;overflow-x:auto}
+.tk-grid{display:grid;grid-template-columns:.9fr 2.1fr 1.1fr 1.1fr 1.2fr 1.7fr;align-items:center;gap:8px;min-width:640px}
+.tk-head{background:#f1f1f1;border:1px solid #e0e0e0;border-radius:8px;padding:14px 22px;font-size:14px;font-weight:600;color:#555;box-shadow:0 1px 3px #0001}
+.tk-row{padding:15px 22px;font-size:11px;font-weight:600;color:#555;border-bottom:1px solid #f1f1f1}
+.tk-row:last-child{border-bottom:0}
+.tk-rows{padding-top:4px}
+.tk-row:hover{background:#faf6f6}
+.tk-prio{display:inline-flex;align-items:center;gap:6px}
+.tk-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.tk-pill{display:inline-block;padding:3px 12px;border-radius:7px;font-size:10px;font-weight:600;border:1px solid transparent}
+.tk-open{background:#cfe6fb;color:#2f6aa8;border-color:#a9d0f3}
+.tk-progress{background:#e4d7fb;color:#6a3fb8;border-color:#cdb7f3}
+.tk-resolved{background:#cdf5d4;color:#2a7a3b;border-color:#a6e5b1}
+.tk-empty{padding:30px;text-align:center;color:#888;font-size:13px}
+@media(max-width:760px){.tk-filters{grid-template-columns:1fr 1fr}.tk-filter-btn{grid-column:1/-1}.tk-menu{top:140px}}
+
+@media(max-width:760px){
+.dashboard.active{display:block;height:auto}
+.dash-sidebar{width:100%;height:auto;padding:14px 0 8px;overflow:visible}
+.dash-brand{margin-bottom:12px}
+.dash-nav{grid-template-columns:repeat(4,minmax(0,1fr));gap:2px}
+.dash-nav button,.logout-button{flex-direction:column;gap:4px;padding:10px 4px;font-size:10px;text-align:center;justify-content:center}
+.logout-button{margin-top:4px}
+.dash-main{height:auto;overflow:visible}
+.topbar{flex-wrap:wrap;padding:12px 15px;gap:10px}
+.search{order:5;flex-basis:100%;max-width:none}
+.page-body{padding:6px 15px 24px}
+.stat-grid,.feature-grid{grid-template-columns:1fr}
+.chip-text{display:none}
+.ticket-list{font-size:10px}
+.ticket-list th,.ticket-list td{padding:9px 4px}
+.pactions{margin-left:0}
+}
+
+.stat-grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:22px}
+.sc4{display:flex;gap:12px;background:#fff;border:1px solid #e4e4e4;border-radius:10px;padding:16px;box-shadow:0 1px 4px #0001}
+.sc4.green{background:#c9f7cf;border-color:#a6e9ae}.sc4.pink{background:#ffd3d3;border-color:#f5b1b1}
+.sc-ic{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;flex-shrink:0}
+.sc-ic svg,.gi{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sc-b{background:#c9d2fb;color:#3a4fc4}.sc-p{background:#dcc9f6;color:#6b32b8}.sc-g{background:#a8e8b0;color:#1d7a2c}.sc-r{background:#f6b4b4;color:#b42323}
+.sc4 small{font-size:12px;font-weight:600;color:#444;display:block}.sc4 strong{display:block;font-size:26px;margin:2px 0}
+.sc4 em{font-style:normal;font-size:9px;color:#777;display:block;margin-top:2px}
+.tr{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;color:#777}.tr svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.tr.up{color:#1d7a2c}.tr.dn{color:#3a4fc4}
+.home-cols{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:18px;align-items:start}
+.rt-card,.side-card{background:#fff;border:1px solid #e4e4e4;border-radius:10px;box-shadow:0 1px 4px #0001}
+.rt-card{padding:14px 16px;position:relative}
+.rt-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;position:relative}
+.rt-head h3{flex:1;margin:0;font-size:15px}
+.rt-head select{height:30px;border:1px solid #ddd;border-radius:8px;background:#fff;font:inherit;font-size:11px;padding:0 8px;color:#333;box-shadow:0 1px 2px #0001}
+.rt-head .tk-filter-btn{height:30px;min-width:0;font-size:11px;padding:0 10px}
+.rt-head .tk-menu{top:36px;right:0}
+.rt-scroll{max-height:380px;overflow:auto;border-top:1px solid #eee}
+.rt-table{width:100%;border-collapse:collapse;font-size:11px;min-width:560px}
+.rt-table th{position:sticky;top:0;background:#fff;text-align:left;padding:10px 8px;font-weight:600;color:#555;border-bottom:1px solid #eee;z-index:1}
+.rt-table td{padding:13px 8px;border-bottom:1px solid #f2f2f2;color:#444;vertical-align:middle}
+.rt-table td small{display:block;color:#777;font-size:10px}
+.rt-empty{padding:26px;text-align:center;color:#888;font-size:12px}
+.home-side{display:grid;gap:14px}
+.side-card{padding:14px 16px}
+.side-card h4{margin:0 0 10px;font-size:12px;font-weight:800}
+.sbtn{display:block;width:100%;height:34px;border-radius:8px;border:1px solid #e0e0e0;background:#fff;font:inherit;font-size:11px;font-weight:700;cursor:pointer;color:#222}
+.sbtn.pr{background:#a9b8f0;border-color:#a9b8f0;color:#2f55d4}
+.sbtn+.sbtn{margin-top:8px}
+.ov-row{display:flex;align-items:center;gap:8px;font-size:11px;margin-bottom:10px}
+.ov-row span{width:72px}.ov-row i{display:block;height:8px;border-radius:4px;min-width:4px}.ov-row b{font-size:11px}
+.need{display:flex;align-items:center;gap:12px}
+.need svg{width:54px;height:54px;flex-shrink:0;stroke:#1b2a49;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.need b{display:block;color:#2f55d4;font-size:12px}.need small{display:block;font-size:10px;color:#444;margin:2px 0 8px}
+.need .sbtn{height:28px}
+.wz-steps{display:flex;align-items:center;gap:12px;max-width:720px;margin:4px auto 18px}
+.wz-steps div{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:600;color:#9aa0ab;white-space:nowrap}
+.wz-steps u{width:22px;height:22px;border-radius:50%;background:#dfe2e8;color:#fff;font-size:10px;font-weight:700;display:grid;place-items:center;text-decoration:none}
+.wz-steps .on{color:#2f55d4}.wz-steps .on u{background:#2f55d4}.wz-steps .done u{background:#1d7a2c}.wz-steps .done{color:#1d7a2c}
+.wz-steps hr{flex:1;border:0;border-top:1px solid #d5d8de;margin:0}
+.wz-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:980px;margin:0 auto}
+.wz-card{background:#fff;border:1px solid #e4e4e4;border-radius:10px;box-shadow:0 1px 4px #0001;padding:14px 16px}
+.wz-card h4{margin:0 0 8px;font-size:13px}
+.wz-card+.wz-card{margin-top:12px}
+.wz-l{display:block;font-size:12px;font-weight:700;color:#666;margin:12px 0 6px}.wz-l:first-child{margin-top:2px}
+.wz-l s{color:#d11;text-decoration:none}
+.wz-in{width:100%;border:1px solid #e0e0e0;border-radius:6px;padding:8px 10px;font:inherit;font-size:11px;background:#fff;outline:none}
+.wz-in:focus{border-color:#8da0ee}
+select.wz-in{height:32px}textarea.wz-in{height:150px;resize:vertical}
+.wz-rad{display:flex;gap:16px;font-size:10px;color:#555;margin-top:2px;flex-wrap:wrap}
+.wz-rad label{display:flex;align-items:center;gap:5px;cursor:pointer}.wz-rad input{accent-color:#2f55d4;margin:0}
+.wz-pv{font-size:11px;color:#666;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;min-height:44px}
+.wz-file{display:flex;align-items:center;gap:10px;font-size:11px;margin:10px 0;color:#555}
+.wz-fic{width:34px;height:34px;border-radius:50%;background:#d6defb;color:#3a4fc4;display:grid;place-items:center;flex-shrink:0}
+.wz-fmeta{flex:1;min-width:0}.wz-fmeta b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wz-fmeta small{color:#888;font-size:10px}
+.wz-file button{background:none;border:0;padding:2px;cursor:pointer;color:#222;display:grid;place-items:center}
+.wz-none{margin:6px 0 0;font-size:11px;color:#888}
+.wz-drop{margin-top:14px;border:1px dashed #cdd1d9;border-radius:8px;padding:12px;font-size:10px;color:#666}
+.wz-drop.hv{background:#eef2ff}
+.wz-drop button{display:block;margin-top:10px;width:100%;height:34px;border-radius:6px;border:0;background:#c3cdf5;color:#2447c9;font-weight:700;font-size:11px;cursor:pointer;font-family:inherit}
+.wz-act{grid-column:1/-1;display:flex;justify-content:flex-end;gap:14px;margin-top:4px}
+.wz-btn{width:130px;height:36px;border-radius:8px;border:1px solid #ddd;background:#fff;font:inherit;font-size:12px;font-weight:700;cursor:pointer;color:#222;box-shadow:0 1px 2px #0002}
+.wz-btn.pr{background:#a9b8f0;border-color:#a9b8f0;color:#2f55d4}.wz-btn.pr:not(:disabled){background:#2f55d4;border-color:#2f55d4;color:#fff}
+.wz-btn:disabled{opacity:.55;cursor:not-allowed}
+.wz-rv{display:grid;grid-template-columns:110px 1fr;gap:9px 10px;font-size:11px;margin:0}.wz-rv dt{color:#666;font-weight:600}.wz-rv dd{margin:0;overflow-wrap:anywhere}
+@media(max-width:1100px){.stat-grid4{grid-template-columns:repeat(2,minmax(0,1fr))}.home-cols,.wz-grid{grid-template-columns:1fr}}
+@media(max-width:760px){.stat-grid4{grid-template-columns:1fr}.rt-head{flex-wrap:wrap}.wz-steps{overflow-x:auto}.rt-card{overflow-x:auto}}
+
+.set-body{padding:0 24px 6px}
+.set-title{font-size:16px;font-weight:700;margin:4px 0 16px;color:#111}
+.set-card{border:1px solid #e4e4e4;border-radius:8px;padding:12px 16px;margin-bottom:12px;background:#fff;box-shadow:0 1px 2px #0000000a;max-width:620px}
+.set-card label{display:block;font-size:12px;font-weight:600;color:#111;margin-bottom:6px}
+.set-val{font-size:13px;color:#444}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.set-row label{margin-bottom:6px}
+.set-link{background:none;border:0;color:#4d9cf0;font-size:12px;cursor:pointer;padding:0;font-family:inherit}
+.set-card select,.set-card input{width:100%;height:36px;border:0;border-radius:4px;background:#e8dfdf;padding:0 12px;font-size:13px;color:#222;font-family:inherit;outline:none}
+.set-card select:focus,.set-card input:focus{box-shadow:inset 0 0 0 1.5px #bd7777}
+.set-pw{display:grid;gap:8px;margin-top:10px}
+.set-actions{display:flex;justify-content:flex-end;max-width:620px;margin:6px 0 14px}
+.set-note{font-size:11px;color:#777;margin:4px 0 0;max-width:620px}
+.set-toggle{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.set-toggle label{margin-bottom:4px}
+.set-toggle .set-val{font-size:11px;color:#777;line-height:1.5}
+.set-signout{margin-top:18px}
+.capsule{position:relative;min-width:68px;height:28px;border:1px solid #d6cfcf;border-radius:999px;background:#ece7e7;color:#666;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;padding:0 12px 0 28px;text-align:right;transition:background .2s,color .2s;flex-shrink:0}
+.capsule:before{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 2px #0003;transition:left .2s}
+.capsule.on{background:var(--red);border-color:var(--red);color:#fff;padding:0 28px 0 12px;text-align:left}
+.capsule.on:before{left:calc(100% - 23px)}
+.capsule:focus-visible{outline:2px solid #bd7777;outline-offset:2px}
+.text-small .page-body{zoom:.92}
+.text-large .page-body{zoom:1.1}
+.kb-wrap{display:grid;grid-template-columns:230px minmax(0,1fr);gap:18px;align-items:start}
+.kb-cats{background:#fff;border:1px solid #e4e4e4;border-radius:10px;padding:10px;box-shadow:0 1px 4px #0001;display:grid;gap:4px}
+.kb-cat{display:flex;justify-content:space-between;align-items:center;background:none;border:0;border-radius:7px;padding:11px 14px;font-size:13px;font-family:inherit;color:#222;cursor:pointer;text-align:left}
+.kb-cat b{font-size:12px;color:#777}
+.kb-cat:hover{background:#faf6f6}
+.kb-cat.active{background:#f6e3e3;color:var(--red);font-weight:700}
+.kb-cat.active b{color:var(--red)}
+.kb-main{display:grid;gap:16px;min-width:0}
+.kb-card{background:#fff;border:1px solid #e4e4e4;border-radius:10px;box-shadow:0 1px 4px #0001;padding:18px 20px}
+.kb-card h3,.kb-help h3{font-size:15px;margin:0 0 10px;color:#111}
+.kb-art{display:flex;align-items:center;gap:14px;width:100%;background:none;border:0;border-bottom:1px solid #f1f1f1;padding:12px 4px;cursor:pointer;text-align:left;font-family:inherit}
+.kb-art:last-child{border-bottom:0}
+.kb-art:hover .kb-art-text b{color:var(--red)}
+.kb-ic{width:40px;height:40px;border-radius:50%;background:#f6e3e3;display:grid;place-items:center;flex-shrink:0}
+.kb-ic svg{width:20px;height:20px;stroke:var(--red);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.kb-art-text{display:grid;gap:4px;min-width:0}
+.kb-art-text b{font-size:13px;color:#111}
+.kb-art-text small{font-size:11px;color:#777;display:flex;gap:18px}
+.kb-art-text small i{font-style:normal}
+.kb-help{background:#fbeeee;border:1px solid #efd0d0;border-radius:10px;padding:18px 20px}
+.kb-help p{font-size:12px;color:#555;margin:0 0 14px;line-height:1.5}
+.kb-help .dash-action{padding:10px 18px}
+.nt-list{padding:6px 16px 0}
+.nt-row{display:flex;align-items:center;gap:16px;width:100%;background:none;border:0;border-bottom:1px solid #f1f1f1;padding:14px 8px;cursor:pointer;text-align:left;font-family:inherit}
+.nt-row:last-child{border-bottom:0}
+.nt-row:hover{background:#faf6f6}
+.nt-ic{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;flex-shrink:0}
+.nt-ic svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nt-text{display:grid;gap:4px;min-width:0;flex:1}
+.nt-text b{font-size:13px;color:#777;font-weight:600}
+.nt-text small{font-size:12px;color:#777;line-height:1.4}
+.nt-row.unread .nt-text b{color:#111;font-weight:700}
+.nt-row.unread .nt-text small{color:#333}
+.nt-meta{display:flex;align-items:center;gap:10px;font-size:10px;color:#777;flex-shrink:0;white-space:nowrap}
+.nt-empty{margin:14px 8px}
+@media(max-width:760px){.kb-wrap{grid-template-columns:1fr}.nt-meta em{display:none}}
+</style>
+</head>
+<body>
+<div class="laptop">
+<div class="camera"></div>
+<div class="screen">
+<aside class="brand-panel">
+<div class="brand"><div class="brand-mark"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg></div><div>IT HELP DESK<small>TICKETING SYSTEM</small></div></div>
+<div class="brand-copy"><h1>Get help.<br>Solve faster.</h1><p>Submit issues, track progress,<br>and stay connected with our IT<br>support team.</p>
+<div class="help-illustration"><svg class="help-svg" viewBox="0 0 119 125" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="IT support staff helping a person at a service counter"><g fill="#fff"><g transform="scale(.25)"><circle cx="135" cy="138" r="31"/><path d="M122 170Q100 172 92 192Q72 240 72 300V435Q72 452 90 452Q108 452 108 435V292L112 252L132 246L188 268L206 254L158 214Q150 174 122 170Z"/><circle cx="330" cy="138" r="32"/><path d="M282 172H372Q388 176 394 202L405 258H248L262 202Q268 176 282 172Z"/></g><path d="M43 52.5L45.8 51.5L51.5 60.5L50.5 63.5L48.5 62Z"/><path d="M101 68.5H60.5Q59 68.5 58 69.5L44 83L47 86.5L60.5 74.5Q61.5 74 62.5 74H101Z"/><path d="M42.6 76.6L55.4 65.6L57.6 67.9L45 78.9Z"/></g><g stroke="#990909" stroke-width="1.7" fill="none"><path d="M71 52.5L68 65.5"/><path d="M90 52.5L93 65.5"/></g></svg></div>
+</div>
+</aside>
+<main class="form-panel">
+<div class="auth-card">
+<div class="tabs"><button class="tab active" id="loginTab" type="button">Login</button><button class="tab" id="signupTab" type="button">Sign Up</button></div>
+<form id="loginForm" novalidate>
+<div class="field"><label for="loginUser">Email or Username</label><input id="loginUser" placeholder="Enter" autocomplete="username"></div>
+<div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" placeholder="Enter" autocomplete="current-password"></div>
+<div class="options"><label class="remember"><input type="checkbox" checked> Remember me</label><a class="text-link" href="#" id="forgotLink">Forgot password?</a></div>
+<button class="main-button" type="submit">Login</button>
+</form>
+<form id="signupForm" class="hidden" novalidate>
+<div class="signup-fields">
+<div class="field"><label for="signupUsername">Username</label><input id="signupUsername" placeholder="Example@User" autocomplete="username"></div>
+<div class="field"><label for="studentNumber">Student Number</label><input id="studentNumber" placeholder="Enter"></div>
+<div class="field"><label for="contactNumber">Contact Number</label><input id="contactNumber" placeholder="Enter" inputmode="tel"></div>
+<div class="field"><label for="signupEmail">Email</label><input id="signupEmail" type="email" placeholder="Enter" autocomplete="email"></div>
+<div class="field"><label for="signupPassword">Password</label><input id="signupPassword" type="password" placeholder="Enter" autocomplete="new-password"></div>
+</div>
+<button class="main-button" type="submit">Sign Up</button>
+</form>
+<div class="continue">or continue with</div>
+<div class="socials" aria-label="Social sign-in options">
+<div class="social" aria-label="Google, display only"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11a9.4 9.4 0 0 1-4.1 6.2v5.1h6.7c3.9-3.6 6-8.8 6-15z"/><path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.5-4.9l-6.7-5.1c-1.8 1.2-4.1 2-6.8 2-5.2 0-9.6-3.5-11.2-8.2H5.9v5.3A20 20 0 0 0 24 44z"/><path fill="#FBBC05" d="M12.8 27.8a12 12 0 0 1 0-7.6v-5.3H5.9a20 20 0 0 0 0 18.2z"/><path fill="#EA4335" d="M24 12.1c3 0 5.7 1 7.8 3.1l5.8-5.8C34.1 6.2 29.5 4 24 4A20 20 0 0 0 5.9 14.9l6.9 5.3c1.6-4.7 6-8.1 11.2-8.1z"/></svg></div>
+<div class="social" aria-label="Facebook, display only"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#1877F2"/><path fill="#fff" d="M13.5 21v-8h2.7l.4-3.1h-3.1v-2c0-.9.3-1.5 1.6-1.5h1.7V3.6c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.5-4 4.1v2.3H7.7V13h2.7v8z"/></svg></div>
+<div class="social" aria-label="Apple, display only"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M16.37 12.29c.02 2.18 1.91 2.9 1.93 2.91-.02.05-.3 1.04-.99 2.06-.6.89-1.22 1.77-2.2 1.79-.96.02-1.27-.58-2.37-.58s-1.45.56-2.35.6c-.94.03-1.66-.96-2.26-1.85-1.23-1.8-2.17-5.08-.91-7.3.63-1.1 1.76-1.8 2.99-1.82.93-.02 1.81.63 2.37.63s1.63-.78 2.75-.67c.47.02 1.8.19 2.66 1.43-.07.04-1.59.93-1.62 2.8zM14.55 5.9c.49-.59.82-1.4.73-2.21-.71.03-1.57.47-2.08 1.05-.46.52-.86 1.35-.75 2.14.79.06 1.61-.4 2.1-.98z"/></svg></div>
+</div>
+<p class="switch" id="switchLogin">Don't have an account? <a href="#" id="switchToSignup">Sign up</a></p>
+<p class="switch hidden" id="switchSignup">Already have an account? <a href="#" id="switchToLogin">Log in</a></p>
+</div>
+</main>
+</div>
+</div>
+
+<section id="dashboard" class="dashboard">
+<aside class="dash-sidebar">
+<div class="dash-brand"><svg viewBox="0 0 40 40" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 27c-3-2-5-5-5-9a11 11 0 0 1 22 0c0 4-2 7-5 9v3H14z"/><path d="M15 34h10M17 37h6"/><circle cx="20" cy="17" r="3.5"/><path d="M20 10v2M20 22v2M13.5 17h2M24.5 17h2"/><path d="M4 8l3 2M36 8l-3 2M2 18h3"/></svg><div>IT HELP DESK<small>TICKETING SYSTEM</small></div></div>
+<nav class="dash-nav">
+<button class="active" data-page="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>Dashboard</button>
+<button data-page="tickets"><svg viewBox="0 0 24 24"><path d="M3 13l3-8h12l3 8v6H3z"/><path d="M3 13h5l1 3h6l1-3h5"/></svg>My Tickets</button>
+<button data-page="create"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Create Ticket</button>
+<button data-page="knowledge"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg>Knowledge Base</button>
+<button data-page="notifications"><svg viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></svg>Notifications</button>
+<button data-page="profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-6 8-6s8 2 8 6"/></svg>Profile</button>
+<button data-page="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="6.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Settings</button>
+</nav>
+<button class="logout-button" id="logoutButton"><svg viewBox="0 0 24 24"><path d="M9 4H5v16h4"/><path d="M16 8l4 4-4 4M20 12H9"/></svg>Log Out</button>
+</aside>
+<main class="dash-main">
+<div class="topbar">
+<button class="back-btn" id="backBtn" type="button" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+<span class="top-title" id="topTitle"></span>
+<input class="search" id="globalSearch" type="search" placeholder="Search tickets, issues, or keywords...">
+<div class="top-right">
+<button class="bell-btn" id="bellBtn" type="button" aria-label="Notifications"><svg viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></svg></button>
+<div class="user-chip"><div class="chip-avatar" id="chipAvatar"></div><div class="chip-text"><strong id="chipEmail"></strong><small>Student / Admin</small></div><svg class="chip-caret" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+</div>
+</div>
+<div class="page-body">
+<div class="dash-top" id="dashHead"><h1 id="dashTitle">Good morning!</h1><p id="dashSubtitle">Here's what's happening with your requests.</p></div>
+<div id="dashContent"></div>
+</div>
+</main>
+</section>
+
+<div class="modal-overlay hidden" id="emailOverlay" role="dialog" aria-modal="true" aria-labelledby="emailTitle">
+<div class="email-modal"><h2 id="emailTitle">Check your email for a login link</h2><p>Tap the link in your email to sign in instantly — no password needed.</p><button class="main-button" id="emailOkay" type="button">Okay</button></div>
+</div>
+<div class="modal-overlay alert-overlay hidden" id="alertOverlay" role="dialog" aria-modal="true" aria-labelledby="alertTitle">
+<div class="alert-modal"><div class="alert-heading" id="alertTitle">This page says</div><div class="alert-message" id="alertMessage">Are you sure you want to continue?</div><div class="alert-actions"><button id="alertCancel" type="button">Cancel</button><button class="ok" id="alertOkay" type="button">OK</button></div></div>
+</div>
+<script>
+const loginTab=document.getElementById("loginTab");
+const signupTab=document.getElementById("signupTab");
+const loginForm=document.getElementById("loginForm");
+const signupForm=document.getElementById("signupForm");
+const switchLogin=document.getElementById("switchLogin");
+const switchSignup=document.getElementById("switchSignup");
+const emailOverlay=document.getElementById("emailOverlay");
+const alertOverlay=document.getElementById("alertOverlay");
+const alertMessage=document.getElementById("alertMessage");
+const authShell=document.querySelector(".laptop");
+const dashboard=document.getElementById("dashboard");
+const dashContent=document.getElementById("dashContent");
+let currentUser=null;
+let currentPage="home";
+let navHistory=[];
+const DEMO_TICKETS=[
+ {id:"TCK-1024",subject:"Wi-Fi connection",category:"Network",priority:"High",status:"Open",date:"2026-09-01T10:34:00"},
+ {id:"TCK-1023",subject:"Computer won't boot",category:"Hardware",priority:"Critical",status:"In Progress",date:"2026-09-01T11:30:00"},
+ {id:"TCK-1022",subject:"Software installation request",category:"Software",priority:"Medium",status:"In Progress",date:"2026-09-01T12:04:00"},
+ {id:"TCK-1021",subject:"Email not syncing",category:"Account",priority:"Low",status:"Resolved",date:"2026-09-01T12:27:00"},
+ {id:"TCK-1020",subject:"Printer not working",category:"Hardware",priority:"Medium",status:"Open",date:"2026-09-02T09:10:00"},
+ {id:"TCK-1019",subject:"HDMI not connecting",category:"Hardware",priority:"Medium",status:"Resolved",date:"2026-09-02T11:11:00"},
+ {id:"TCK-1018",subject:"Forgot portal password",category:"Account",priority:"High",status:"Resolved",date:"2026-08-31T14:20:00"},
+ {id:"TCK-1017",subject:"VPN keeps disconnecting",category:"Network",priority:"High",status:"In Progress",date:"2026-08-31T09:45:00"},
+ {id:"TCK-1016",subject:"Install Microsoft Office",category:"Software",priority:"Low",status:"Resolved",date:"2026-08-30T15:05:00"},
+ {id:"TCK-1015",subject:"Projector has no signal",category:"Hardware",priority:"Medium",status:"Open",date:"2026-08-30T10:12:00"},
+ {id:"TCK-1014",subject:"Account locked out",category:"Account",priority:"Critical",status:"Resolved",date:"2026-08-29T08:50:00"},
+ {id:"TCK-1013",subject:"Slow internet in lab",category:"Network",priority:"Low",status:"Open",date:"2026-08-29T13:40:00"}
+];
+const PRIO_COLORS={Critical:"#b30000",High:"#f03a3a",Medium:"#f2d000",Low:"#2bb24c"};
+const MONTHS=["Jan.","Feb.","Mar.","Apr.","May","Jun.","Jul.","Aug.","Sep.","Oct.","Nov.","Dec."];
+let ticketUI={tab:"All",cat:"All Categories",sort:"new",prio:"All",menu:false};
+function fmtDate(iso){
+ const d=new Date(iso);if(isNaN(d))return "";
+ let h=d.getHours(),m=String(d.getMinutes()).padStart(2,"0"),ap=h>=12?"PM":"AM";h=h%12||12;
+ return `${MONTHS[d.getMonth()]} ${String(d.getDate()).padStart(2,"0")}, ${d.getFullYear()} ${String(h).padStart(2,"0")}:${m} ${ap}`;
+}
+function allTickets(){
+ const mine=readTickets().filter(t=>t.email===currentUser.email).map(t=>({id:t.id,subject:t.subject,category:t.category,priority:t.priority,status:t.status,date:t.created,key:Date.parse(t.created)||0}));
+ const demo=DEMO_TICKETS.map(t=>({...t,key:parseInt(t.id.split("-")[1],10)}));
+ return mine.concat(demo);
+}
+function renderTickets(){
+ const all=allTickets(),q=searchQuery.toLowerCase();
+ let list=all.filter(t=>(ticketUI.cat==="All Categories"||t.category===ticketUI.cat)&&(ticketUI.prio==="All"||t.priority===ticketUI.prio)&&(!q||[t.id,t.subject,t.category,t.priority,t.status].join(" ").toLowerCase().includes(q)));
+ const count=s=>list.filter(t=>t.status===s).length;
+ const tabs=[["All",list.length],["Open",count("Open")],["In Progress",count("In Progress")],["Resolved",count("Resolved")]];
+ let rows=ticketUI.tab==="All"?list:list.filter(t=>t.status===ticketUI.tab);
+ rows=rows.slice().sort((a,b)=>ticketUI.sort==="new"?b.key-a.key:a.key-b.key);
+ const pillClass={"Open":"tk-open","In Progress":"tk-progress","Resolved":"tk-resolved"};
+ const cats=["All Categories","Network","Hardware","Software","Account","Other"];
+ dashContent.innerHTML=`<div class="tk-wrap">
+<div class="tk-tabs">${tabs.map(([n,c])=>`<button class="tk-tab${ticketUI.tab===n?" active":""}" data-tab="${n}">${n} (${c})</button>`).join("")}</div>
+<div class="tk-filters">
+<select class="tk-select" id="tkCat">${cats.map(c=>`<option${c===ticketUI.cat?" selected":""}>${c}</option>`).join("")}</select>
+<select class="tk-select" id="tkSort"><option value="new"${ticketUI.sort==="new"?" selected":""}>Newest to Oldest</option><option value="old"${ticketUI.sort==="old"?" selected":""}>Oldest to Newest</option></select>
+<button class="tk-filter-btn${ticketUI.prio!=="All"?" on":""}" id="tkFilter" type="button"><svg viewBox="0 0 24 24"><path d="M3 4h18l-7 8.5V20l-4-2v-5.5z"/></svg>Filter</button>
+${ticketUI.menu?`<div class="tk-menu">${["All","Critical","High","Medium","Low"].map(p=>`<button data-prio="${p}" class="${ticketUI.prio===p?"sel":""}">${p==="All"?"All priorities":p+" priority"}</button>`).join("")}</div>`:""}
+</div>
+<div class="tk-table">
+<div class="tk-grid tk-head"><span>ID</span><span>Issue</span><span>Category</span><span>Priority</span><span>Status</span><span>Date</span></div>
+<div class="tk-rows">${rows.length?rows.map(t=>`<div class="tk-grid tk-row"><span>${escapeHTML(t.id)}</span><span>${escapeHTML(t.subject)}</span><span>${escapeHTML(t.category)}</span><span class="tk-prio"><i class="tk-dot" style="background:${PRIO_COLORS[t.priority]||"#999"}"></i>${escapeHTML(t.priority)}</span><span><span class="tk-pill ${pillClass[t.status]||"tk-open"}">${escapeHTML(t.status)}</span></span><span>${escapeHTML(fmtDate(t.date))}</span></div>`).join(""):`<div class="tk-empty">${q?"No tickets match your search.":"No tickets match your filters."}</div>`}</div>
+</div></div>`;
+ dashContent.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>{ticketUI.tab=b.dataset.tab;ticketUI.menu=false;renderTickets()}));
+ document.getElementById("tkCat").addEventListener("change",e=>{ticketUI.cat=e.target.value;renderTickets()});
+ document.getElementById("tkSort").addEventListener("change",e=>{ticketUI.sort=e.target.value;renderTickets()});
+ document.getElementById("tkFilter").addEventListener("click",()=>{ticketUI.menu=!ticketUI.menu;renderTickets()});
+ dashContent.querySelectorAll("[data-prio]").forEach(b=>b.addEventListener("click",()=>{ticketUI.prio=b.dataset.prio;ticketUI.menu=false;renderTickets()}));
+}
+
+let searchQuery="";
+const AVATAR=`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#e2644f"/><path d="M6 100c2-26 16-34 44-34s42 8 44 34z" fill="#3d6fdc"/><rect x="43" y="56" width="14" height="14" rx="5" fill="#eebd96"/><circle cx="31" cy="26" r="8" fill="#6b3a2a"/><circle cx="69" cy="26" r="8" fill="#6b3a2a"/><circle cx="50" cy="44" r="18" fill="#f3c9a4"/><path d="M32 42c0-14 8-20 18-20s18 6 18 20c-5-7-10-10-18-10s-13 3-18 10z" fill="#6b3a2a"/><circle cx="43" cy="46" r="5.5" fill="none" stroke="#f2b705" stroke-width="2"/><circle cx="57" cy="46" r="5.5" fill="none" stroke="#f2b705" stroke-width="2"/><path d="M48.5 46h3" stroke="#f2b705" stroke-width="2"/><path d="M45 55q5 4 10 0" stroke="#b5503f" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M62 70l20-9v22l-20-9z" fill="#f5d142"/><circle cx="83" cy="72" r="6" fill="#fff" stroke="#3d6fdc" stroke-width="2"/><rect x="57" y="68" width="8" height="8" rx="2" fill="#f3c9a4"/></svg>`;
+function displayName(u){return u.fullName||u.username}
+function updateHeader(){
+ document.getElementById("chipEmail").textContent=currentUser.email;
+ document.getElementById("chipAvatar").innerHTML=AVATAR;
+}
+function profileHTML(){
+ const u=currentUser,v=x=>escapeHTML(x||"");
+ return `<div class="profile-head"><div class="avatar-lg">${AVATAR}</div><div class="profile-info"><h2 id="pName">${escapeHTML(displayName(u))}</h2><small>Student</small><div class="pline"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg><span id="pEmail">${v(u.email)}</span></div><div class="pline">Pasig City, Philippines</div></div></div>
+<form class="profile-card" id="profileForm" novalidate>
+<div class="ptabs"><button type="button" class="ptab">Personal Info</button><button type="button" class="ptab" disabled>Personal Info</button></div>
+<div class="pfield"><label for="pFullName">Full Name</label><input id="pFullName" value="${v(u.fullName)}" placeholder="First Second Last Name" readonly></div>
+<div class="pfield"><label for="pStudentId">Student ID</label><input id="pStudentId" value="${v(u.studentNumber)}" placeholder="2022-225067" readonly></div>
+<div class="pfield"><label for="pEmailInput">Email</label><input id="pEmailInput" class="underline" type="email" value="${v(u.email)}" placeholder="Username@gmail.com" readonly></div>
+<div class="pfield"><label for="pPhone">Phone</label><input id="pPhone" type="tel" value="${v(u.contactNumber)}" placeholder="099106769127" readonly></div>
+<div class="pfield"><label for="pDept">Department</label><input id="pDept" value="${v(u.department)}" placeholder="BS Information Technology" readonly></div>
+<div class="pactions"><button type="button" class="pbtn" id="pEdit"><svg viewBox="0 0 24 24"><path d="M12 4H5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>Edit</button><button type="submit" class="pbtn" id="pSave" disabled><svg viewBox="0 0 24 24"><path d="M5 3h11l4 4v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M8 3v5h7V3M8 21v-7h8v7"/></svg>Save</button></div>
+</form>`;
+}
+function bindProfile(){
+ const form=document.getElementById("profileForm");
+ const inputs=[...form.querySelectorAll(".pfield input")];
+ const saveBtn=document.getElementById("pSave");
+ const val=id=>document.getElementById(id).value.trim();
+ function setEditing(on){inputs.forEach(i=>i.readOnly=!on);saveBtn.disabled=!on;form.classList.toggle("editing",on);if(on)inputs[0].focus()}
+ document.getElementById("pEdit").addEventListener("click",()=>setEditing(true));
+ form.addEventListener("submit",event=>{
+  event.preventDefault();
+  if(saveBtn.disabled)return;
+  const fullName=val("pFullName"),studentNumber=val("pStudentId"),email=val("pEmailInput").toLowerCase(),contactNumber=val("pPhone"),department=val("pDept");
+  if(!studentNumber){showAlert("Student ID is required.");return}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showAlert("Please enter a valid email address.");return}
+  if(contactNumber&&!/^[0-9+\-\s()]{7,20}$/.test(contactNumber)){showAlert("Please enter a valid phone number.");return}
+  const users=readUsers();
+  const oldEmail=currentUser.email;
+  const idx=users.findIndex(a=>a.email.toLowerCase()===oldEmail.toLowerCase());
+  if(users.some((a,i)=>i!==idx&&a.email.toLowerCase()===email)){showAlert("Another account already uses this email.");return}
+  const updated={...currentUser,fullName,studentNumber,email,contactNumber,department};
+  if(idx>=0)users[idx]=updated;else users.push(updated);
+  saveUsers(users);
+  if(oldEmail.toLowerCase()!==email){saveTickets(readTickets().map(t=>t.email===oldEmail?{...t,email}:t));sessionStorage.setItem("helpdesk_session",email)}
+  currentUser=updated;
+  updateHeader();
+  document.getElementById("pName").textContent=displayName(updated);
+  document.getElementById("pEmail").textContent=updated.email;
+  setEditing(false);
+  showAlert("Your profile has been updated.");
+ });
+}
+
+const SVGI={
+ file:'<path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+ check:'<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>',
+ alert:'<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/>',
+ dl:'<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>',
+ x:'<path d="M6 6l12 12M18 6L6 18"/>',
+ up:'<path d="M12 19V5M5 12l7-7 7 7"/>',
+ down:'<path d="M12 5v14M5 12l7 7 7-7"/>',
+ head:'<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="13" width="4" height="6" rx="1"/><rect x="17" y="13" width="4" height="6" rx="1"/><path d="M19 19c0 1.5-2 2-5 2"/>'
+};
+const svgi=(n,c)=>`<svg class="${c||"gi"}" viewBox="0 0 24 24">${SVGI[n]}</svg>`;
+let dashUI={cat:"All Categories",sort:"new",prio:"All",menu:false};
+function fmtParts(iso){const t=fmtDate(iso).split(" ");return [t.slice(0,-2).join(" "),t.slice(-2).join(" ")]}
+function trendHTML(all,pred){
+ const ts=all.map(t=>Date.parse(t.date)||0),ref=Math.max(0,...ts),w=6048e5;
+ let a=0,b=0;
+ all.forEach(t=>{if(!pred(t))return;const d=ref-(Date.parse(t.date)||0);if(d<w)a++;else if(d<2*w)b++});
+ if(!a&&!b)return `<span class="tr">—</span>`;
+ const p=b?Math.round((a-b)/b*100):100;
+ return `<span class="tr ${p>=0?"up":"dn"}">${svgi(p>=0?"up":"down","")}${Math.abs(p)}%</span>`;
+}
+function renderHome(){
+ const all=allTickets();
+ const isHi=t=>(t.priority==="High"||t.priority==="Critical")&&t.status!=="Resolved";
+ const cards=[["","file","sc-b","Open Tickets",t=>t.status==="Open"],["","clock","sc-p","In Progress",t=>t.status==="In Progress"],["green","check","sc-g","Resolved",t=>t.status==="Resolved"],["pink","alert","sc-r","High Priority",isHi]];
+ const counts=cards.map(c=>all.filter(c[4]).length);
+ const mx=Math.max(1,counts[0],counts[1],counts[2]);
+ let list=all.filter(t=>(dashUI.cat==="All Categories"||t.category===dashUI.cat)&&(dashUI.prio==="All"||t.priority===dashUI.prio));
+ list.sort((a,b)=>dashUI.sort==="new"?b.key-a.key:a.key-b.key);
+ const pillClass={"Open":"tk-open","In Progress":"tk-progress","Resolved":"tk-resolved"};
+ const cats=["All Categories","Network","Hardware","Software","Account","Other"];
+ const rows=list.length?list.map(t=>{const p=fmtParts(t.date);return `<tr><td>${escapeHTML(t.id)}</td><td>${escapeHTML(t.subject)}</td><td>${escapeHTML(t.category)}</td><td><i class="tk-dot" style="background:${PRIO_COLORS[t.priority]||"#999"};margin-right:6px"></i>${escapeHTML(t.priority)}</td><td><span class="tk-pill ${pillClass[t.status]||"tk-open"}">${escapeHTML(t.status)}</span></td><td>${escapeHTML(p[0])}<small>${escapeHTML(p[1])}</small></td></tr>`}).join(""):`<tr><td colspan="6" class="rt-empty">No tickets match your filters.</td></tr>`;
+ dashContent.innerHTML=`<div class="stat-grid4">${cards.map((c,i)=>`<div class="sc4 ${c[0]}"><div class="sc-ic ${c[2]}">${svgi(c[1])}</div><div><small>${c[3]}</small><strong>${counts[i]}</strong>${trendHTML(all,c[4])}<em>vs. last 7 days</em></div></div>`).join("")}</div>
+<div class="home-cols"><div class="rt-card"><div class="rt-head"><h3>Recent Tickets</h3>
+<select id="hCat">${cats.map(c=>`<option${c===dashUI.cat?" selected":""}>${c}</option>`).join("")}</select>
+<select id="hSort"><option value="new"${dashUI.sort==="new"?" selected":""}>Newest to Oldest</option><option value="old"${dashUI.sort==="old"?" selected":""}>Oldest to Newest</option></select>
+<button class="tk-filter-btn${dashUI.prio!=="All"?" on":""}" id="hFilter" type="button"><svg viewBox="0 0 24 24"><path d="M3 4h18l-7 8.5V20l-4-2v-5.5z"/></svg>Filter</button>
+${dashUI.menu?`<div class="tk-menu">${["All","Critical","High","Medium","Low"].map(p=>`<button data-hprio="${p}" class="${dashUI.prio===p?"sel":""}">${p==="All"?"All priorities":p+" priority"}</button>`).join("")}</div>`:""}</div>
+<div class="rt-scroll"><table class="rt-table"><thead><tr><th>Ticket ID</th><th>Issue</th><th>Category</th><th>Priority</th><th>Status</th><th>Date Created</th></tr></thead><tbody>${rows}</tbody></table></div></div>
+<div class="home-side"><div class="side-card"><h4>Quick Actions</h4><button class="sbtn pr" data-go="create">Create Ticket</button><button class="sbtn" data-go="knowledge">Browse Knowledge Base</button></div>
+<div class="side-card"><h4>Ticket Overview</h4><div class="ov-row"><span>Open</span><i style="width:${counts[0]/mx*110}px;background:#6d8ef0"></i><b>${counts[0]}</b></div><div class="ov-row"><span>In Progress</span><i style="width:${counts[1]/mx*110}px;background:#9a6fe0"></i><b>${counts[1]}</b></div><div class="ov-row"><span>Resolved</span><i style="width:${counts[2]/mx*110}px;background:#3cc254"></i><b>${counts[2]}</b></div></div>
+<div class="side-card need"><svg viewBox="0 0 24 24">${SVGI.head}</svg><div><b>Need help?</b><small>Contact our IT support team for urgent issues.</small><button class="sbtn pr" id="hCall" type="button">Call Support</button></div></div></div></div>`;
+ document.getElementById("hCat").addEventListener("change",e=>{dashUI.cat=e.target.value;renderHome();bindGo()});
+ document.getElementById("hSort").addEventListener("change",e=>{dashUI.sort=e.target.value;renderHome();bindGo()});
+ document.getElementById("hFilter").addEventListener("click",()=>{dashUI.menu=!dashUI.menu;renderHome();bindGo()});
+ dashContent.querySelectorAll("[data-hprio]").forEach(b=>b.addEventListener("click",()=>{dashUI.prio=b.dataset.hprio;dashUI.menu=false;renderHome();bindGo()}));
+ document.getElementById("hCall").addEventListener("click",()=>showAlert("Please contact the IT support desk for urgent issues."));
+}
+function bindGo(){dashContent.querySelectorAll("[data-go]").forEach(button=>button.addEventListener("click",()=>renderPage(button.dataset.go)))}
+
+const WZ_TYPES={Hardware:["Computer won't boot","Printer not working","Monitor or display","Keyboard, mouse, or peripherals"],Software:["Software installation","License or activation","Application crash"],Network:["Wi-Fi connection","VPN access","No internet"],Account:["Password reset","Email not syncing","Access request"],Other:["General inquiry"]};
+let wz=null;
+function newWz(){return{step:1,category:"",type:"",priority:"",subject:"",description:"",contact:"",location:"",started:"",files:[]}}
+function wzValid(){return !!(wz.category&&wz.type&&wz.priority&&wz.subject.trim()&&wz.description.trim())}
+function wzOpts(list,val,ph){return `<option value="">${ph}</option>`+list.map(x=>`<option${x===val?" selected":""}>${escapeHTML(x)}</option>`).join("")}
+function fmtSize(b){return b>=1048576?(b/1048576).toFixed(1)+" MB":Math.max(1,Math.round(b/1024))+" KB"}
+function wzFilesHTML(){return wz.files.length?wz.files.map((f,i)=>`<div class="wz-file"><div class="wz-fic">${svgi("file")}</div><div class="wz-fmeta"><b>${escapeHTML(f.name)}</b><small>${fmtSize(f.size)}</small></div><button type="button" data-wzdl="${i}" aria-label="Download file">${svgi("dl")}</button><button type="button" data-wzrm="${i}" aria-label="Remove file">${svgi("x")}</button></div>`).join(""):`<p class="wz-none">No files attached.</p>`}
+function wzLeftHTML(){
+ const w=wz,e=escapeHTML;
+ if(w.step===1)return `<label class="wz-l" for="wzCat">Issue Category <s>*</s></label><select class="wz-in" id="wzCat">${wzOpts(Object.keys(WZ_TYPES),w.category,"Select a category")}</select>
+<label class="wz-l" for="wzType">Issue Type <s>*</s></label><select class="wz-in" id="wzType"${w.category?"":" disabled"}>${wzOpts(WZ_TYPES[w.category]||[],w.type,"Select an issue type")}</select>
+<label class="wz-l">Priority <s>*</s></label><div class="wz-rad">${["Low","Medium","High","Critical"].map(p=>`<label><input type="radio" name="wzPri" value="${p}"${w.priority===p?" checked":""}>${p}</label>`).join("")}</div>
+<label class="wz-l" for="wzSubj">Subject <s>*</s></label><input class="wz-in" id="wzSubj" maxlength="120" placeholder="Briefly describe your issue" value="${e(w.subject)}">
+<label class="wz-l" for="wzDesc">Description <s>*</s></label><textarea class="wz-in" id="wzDesc" placeholder="Provide detailed information about the problem...">${e(w.description)}</textarea>`;
+ if(w.step===2)return `<label class="wz-l" for="wzContact">Contact number</label><input class="wz-in" id="wzContact" placeholder="e.g. 0917 000 0000" value="${e(w.contact)}">
+<label class="wz-l" for="wzLoc">Location</label><input class="wz-in" id="wzLoc" placeholder="Room, building, or campus" value="${e(w.location)}">
+<label class="wz-l" for="wzWhen">When did it start?</label><input class="wz-in" id="wzWhen" placeholder="e.g. This morning, since Monday" value="${e(w.started)}">`;
+ return `<dl class="wz-rv"><dt>Category</dt><dd>${e(w.category)}</dd><dt>Issue type</dt><dd>${e(w.type)}</dd><dt>Priority</dt><dd>${e(w.priority)}</dd><dt>Subject</dt><dd>${e(w.subject)}</dd><dt>Description</dt><dd>${e(w.description)}</dd><dt>Contact</dt><dd>${e(w.contact)||"—"}</dd><dt>Location</dt><dd>${e(w.location)||"—"}</dd><dt>Started</dt><dd>${e(w.started)||"—"}</dd><dt>Attachments</dt><dd>${w.files.length?w.files.map(f=>e(f.name)).join(", "):"None"}</dd></dl>`;
+}
+function renderCreate(){
+ const s=wz.step,cl=n=>s>n?"done":s===n?"on":"";
+ dashContent.innerHTML=`<div class="wz-steps"><div class="${cl(1)}"><u>1</u>Issue Details</div><hr><div class="${cl(2)}"><u>2</u>Additional Info</div><hr><div class="${cl(3)}"><u>3</u>Review &amp; Submit</div></div>
+<div class="wz-grid"><div class="wz-card">${wzLeftHTML()}</div>
+<div><div class="wz-card"><h4>Description</h4><div class="wz-pv" id="wzPv">${escapeHTML(wz.description)||"Your description will appear here as you type."}</div></div>
+<div class="wz-card"><h4>Attachments</h4><div id="wzFiles">${wzFilesHTML()}</div>
+<div class="wz-drop" id="wzDrop">Attachments (optional)<br>Drag and drop the files here<button type="button" id="wzChoose">Choose File</button><input type="file" id="wzInput" multiple hidden></div></div></div>
+<div class="wz-act"><button type="button" class="wz-btn" id="wzCancel">Cancel</button>${s>1?'<button type="button" class="wz-btn" id="wzBack">Back</button>':""}<button type="button" class="wz-btn pr" id="wzNext"${s===1&&!wzValid()?" disabled":""}>${s===3?"Submit Ticket":"Next"}</button></div></div>`;
+ bindWz();
+}
+function bindWz(){
+ const $=id=>document.getElementById(id),next=$("wzNext");
+ const upd=()=>{if(wz.step===1)next.disabled=!wzValid()};
+ if(wz.step===1){
+  $("wzCat").addEventListener("change",e=>{wz.category=e.target.value;wz.type="";renderCreate()});
+  $("wzType").addEventListener("change",e=>{wz.type=e.target.value;upd()});
+  dashContent.querySelectorAll('[name="wzPri"]').forEach(r=>r.addEventListener("change",e=>{wz.priority=e.target.value;upd()}));
+  $("wzSubj").addEventListener("input",e=>{wz.subject=e.target.value;upd()});
+  $("wzDesc").addEventListener("input",e=>{wz.description=e.target.value;$("wzPv").textContent=wz.description||"Your description will appear here as you type.";upd()});
+ }
+ if(wz.step===2){
+  $("wzContact").addEventListener("input",e=>wz.contact=e.target.value);
+  $("wzLoc").addEventListener("input",e=>wz.location=e.target.value);
+  $("wzWhen").addEventListener("input",e=>wz.started=e.target.value);
+ }
+ $("wzCancel").addEventListener("click",()=>{wz=null;renderPage("home")});
+ if($("wzBack"))$("wzBack").addEventListener("click",()=>{wz.step--;renderCreate()});
+ next.addEventListener("click",()=>{
+  if(wz.step<3){wz.step++;renderCreate();return}
+  const nums=allTickets().map(t=>parseInt(String(t.id).split("-")[1],10)||0);
+  const all=readTickets();
+  all.unshift({id:"TCK-"+(Math.max(1000,...nums)+1),email:currentUser.email,subject:wz.subject.trim(),description:wz.description.trim(),category:wz.category,issueType:wz.type,priority:wz.priority,status:"Open",created:new Date().toISOString(),contactNumber:wz.contact.trim(),location:wz.location.trim(),started:wz.started.trim(),attachments:wz.files.map(f=>({name:f.name,size:f.size}))});
+  saveTickets(all);wz=null;renderPage("tickets");showAlert("Your ticket has been saved in this browser.");
+ });
+ const bindFiles=()=>{
+  dashContent.querySelectorAll("[data-wzdl]").forEach(b=>b.addEventListener("click",()=>{const f=wz.files[b.dataset.wzdl],u=URL.createObjectURL(f),a=document.createElement("a");a.href=u;a.download=f.name;a.click();setTimeout(()=>URL.revokeObjectURL(u),500)}));
+  dashContent.querySelectorAll("[data-wzrm]").forEach(b=>b.addEventListener("click",()=>{wz.files.splice(b.dataset.wzrm,1);$("wzFiles").innerHTML=wzFilesHTML();bindFiles()}));
+ };
+ const add=list=>{wz.files.push(...list);$("wzFiles").innerHTML=wzFilesHTML();bindFiles()};
+ $("wzChoose").addEventListener("click",()=>$("wzInput").click());
+ $("wzInput").addEventListener("change",e=>{add([...e.target.files]);e.target.value=""});
+ const dz=$("wzDrop");
+ dz.addEventListener("dragover",e=>{e.preventDefault();dz.classList.add("hv")});
+ dz.addEventListener("dragleave",()=>dz.classList.remove("hv"));
+ dz.addEventListener("drop",e=>{e.preventDefault();dz.classList.remove("hv");add([...e.dataTransfer.files])});
+ bindFiles();
+}
+
+function showAlert(message){alertMessage.textContent=message;alertOverlay.classList.remove("hidden")}
+function closeAlert(){alertOverlay.classList.add("hidden")}
+function showLogin(){loginForm.classList.remove("hidden");signupForm.classList.add("hidden");loginTab.classList.add("active");signupTab.classList.remove("active");switchLogin.classList.remove("hidden");switchSignup.classList.add("hidden")}
+function showSignup(){signupForm.classList.remove("hidden");loginForm.classList.add("hidden");signupTab.classList.add("active");loginTab.classList.remove("active");switchSignup.classList.remove("hidden");switchLogin.classList.add("hidden")}
+function readUsers(){try{return JSON.parse(localStorage.getItem("helpdesk_users")||"[]")}catch{return []}}
+function saveUsers(users){localStorage.setItem("helpdesk_users",JSON.stringify(users))}
+function readTickets(){try{return JSON.parse(localStorage.getItem("helpdesk_tickets")||"[]")}catch{return []}}
+function saveTickets(tickets){localStorage.setItem("helpdesk_tickets",JSON.stringify(tickets))}
+function escapeHTML(value){return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]))}
+function enterApp(user){currentUser=user;applyFontSize();sessionStorage.setItem("helpdesk_session",user.email);authShell.style.display="none";dashboard.classList.add("active");navHistory=[];currentPage="home";searchQuery="";document.getElementById("globalSearch").value="";updateHeader();renderPage("home")}
+function leaveApp(){currentUser=null;sessionStorage.removeItem("helpdesk_session");dashboard.classList.remove("active");authShell.style.display="";showLogin()}
+function renderPage(page,fromBack){
+ if(!fromBack&&page!==currentPage)navHistory.push(currentPage);
+ currentPage=page;
+ document.querySelectorAll(".dash-nav button").forEach(button=>button.classList.toggle("active",button.dataset.page===page));
+ const titles={home:["Good morning, "+currentUser.username+"!","Here's what's happening with your requests."],tickets:["My Tickets","View and track the issues you've submitted."],create:["Create a Ticket","Tell the support team what you need help with."],knowledge:["Knowledge Base","Helpful guides and common troubleshooting steps."],notifications:["Notifications","Updates related to your support requests."],profile:["My Profile","View your account information."],settings:["Settings","Manage your account, notifications, appearance, and security."]};
+ document.getElementById("dashTitle").textContent=titles[page][0];
+ document.getElementById("dashSubtitle").textContent=titles[page][1];
+ const isProfile=page==="profile",isTickets=page==="tickets",isCreate=page==="create";
+ document.getElementById("dashHead").classList.toggle("hidden",isProfile||isTickets||isCreate);
+ document.getElementById("globalSearch").classList.toggle("hidden",isCreate);
+ document.getElementById("globalSearch").placeholder=page==="knowledge"?"Search articles...":"Search tickets, issues, or keywords...";
+ document.getElementById("topTitle").textContent=isProfile?"My Profile":isTickets?"My Tickets":isCreate?"Create a Ticket":"";
+ const tickets=readTickets().filter(ticket=>ticket.email===currentUser.email);
+ const shown=searchQuery?tickets.filter(t=>[t.id,t.subject,t.category,t.priority,t.status].join(" ").toLowerCase().includes(searchQuery.toLowerCase())):tickets;
+ if(page==="home"){
+ renderHome();
+ }else if(page==="tickets"){
+ renderTickets();
+ }else if(page==="create"){
+ wz=newWz();renderCreate();
+ }else if(page==="knowledge"){
+ renderKnowledge();
+ }else if(page==="notifications"){
+ renderNotifications();
+ }else if(page==="profile"){
+ dashContent.innerHTML=profileHTML();
+ bindProfile();
+ }else if(page==="settings"){
+ renderSettings();
+  
+ }
+ dashContent.querySelectorAll("[data-go]").forEach(button=>button.addEventListener("click",()=>renderPage(button.dataset.go)));
+}
+const SET_TABS=[["account","Account"],["notifications","Notifications"],["appearance","Appearance"],["security","Security"]];
+const LANGUAGES=["English (US)","English (UK)","Filipino","Spanish","French"];
+const TIME_ZONES=["(GMT+08:00) Philippine Standard Time","(GMT+08:00) China Standard Time","(GMT+09:00) Japan Standard Time","(GMT+00:00) Coordinated Universal Time","(GMT-05:00) Eastern Time (US & Canada)","(GMT-08:00) Pacific Time (US & Canada)"];
+const FONT_SIZES=[["small","Small"],["default","Default"],["large","Large"]];
+let settingsTab="account";
+let pwFormOpen=false;
+function userSettings(){return{language:currentUser.language||"English (US)",timezone:currentUser.timezone||TIME_ZONES[0],fontSize:currentUser.fontSize||"default"}}
+function applyFontSize(){const size=(currentUser&&currentUser.fontSize)||"default";document.body.classList.remove("text-small","text-large");if(size!=="default")document.body.classList.add("text-"+size)}
+function setOpts(list,val){return list.map(x=>`<option${x===val?" selected":""}>${escapeHTML(x)}</option>`).join("")}
+function accountHTML(){
+ const u=currentUser,s=userSettings(),e=escapeHTML;
+ return `<h3 class="set-title">Account Settings</h3>
+<div class="set-card"><label>Email</label><div class="set-val">${e(u.email)}</div></div>
+<div class="set-card"><div class="set-row"><label>Password</label><button type="button" class="set-link" id="pwToggle">${pwFormOpen?"Cancel":"Change"}</button></div><div class="set-val">••••••••</div>${pwFormOpen?`<form id="pwForm" class="set-pw" novalidate><input type="password" id="pwCurrent" placeholder="Current password" autocomplete="current-password"><input type="password" id="pwNew" placeholder="New password (at least 6 characters)" autocomplete="new-password"><input type="password" id="pwConfirm" placeholder="Confirm new password" autocomplete="new-password"><div class="set-actions" style="margin:0"><button class="pbtn" type="submit">Update Password</button></div></form>`:""}</div>
+<div class="set-card"><label>Student ID</label><div class="set-val">${e(u.studentNumber)||"Not set"}</div></div>
+<form id="accountForm" novalidate>
+<div class="set-card"><label for="setLang">Languages</label><select id="setLang">${setOpts(LANGUAGES,s.language)}</select></div>
+<div class="set-card"><label for="setTz">Time Zone</label><select id="setTz">${setOpts(TIME_ZONES,s.timezone)}</select></div>
+<div class="set-actions"><button class="pbtn" type="submit">Save Changes</button></div>
+</form>
+<p class="set-note">To change your email or student ID, edit them on your Profile page.</p>`;
+}
+function notificationsHTML(){return `<h3 class="set-title">Notifications</h3><div class="empty-state">No notifications yet. Updates about your tickets will appear here.</div>`}
+function appearanceHTML(){
+ const s=userSettings();
+ return `<h3 class="set-title">Appearance</h3>
+<form id="appearanceForm" novalidate>
+<div class="set-card"><label for="setFont">Text Size</label><select id="setFont">${FONT_SIZES.map(([v,n])=>`<option value="${v}"${s.fontSize===v?" selected":""}>${n}</option>`).join("")}</select></div>
+<div class="set-actions"><button class="pbtn" type="submit">Save Changes</button></div>
+</form>`;
+}
+const SEC_ITEMS=[["Two-factor authentication","Require a verification code when you sign in.",false],["Login alerts","Get notified when your account is used on a new device.",true],["Remember this device","Stay signed in on this device.",false]];
+function securityHTML(){
+ return `<h3 class="set-title">Security</h3>${SEC_ITEMS.map(([t,d,on])=>`<div class="set-card set-toggle"><div><label>${t}</label><div class="set-val">${d}</div></div><button type="button" class="capsule${on?" on":""}" aria-pressed="${on}">${on?"On":"Off"}</button></div>`).join("")}`;
+}
+function renderSettings(){
+ const bodies={account:accountHTML,notifications:notificationsHTML,appearance:appearanceHTML,security:securityHTML};
+ dashContent.innerHTML=`<div class="tk-wrap"><div class="tk-tabs">${SET_TABS.map(([k,n])=>`<button type="button" class="tk-tab${settingsTab===k?" active":""}" data-stab="${k}">${n}</button>`).join("")}</div><div class="set-body">${bodies[settingsTab]()}</div></div>
+<div class="set-signout"><button class="dash-action" id="clearSession" type="button">Sign Out</button></div>`;
+ bindSettings();
+}
+function saveUserSettings(patch){
+ const users=readUsers(),idx=users.findIndex(a=>a.email.toLowerCase()===currentUser.email.toLowerCase());
+ currentUser={...currentUser,...patch};
+ if(idx>=0){users[idx]={...users[idx],...patch};saveUsers(users)}
+ applyFontSize();
+}
+function bindSettings(){
+ const q=id=>document.getElementById(id);
+ dashContent.querySelectorAll("[data-stab]").forEach(b=>b.addEventListener("click",()=>{settingsTab=b.dataset.stab;pwFormOpen=false;renderSettings()}));
+ if(q("pwToggle"))q("pwToggle").addEventListener("click",()=>{pwFormOpen=!pwFormOpen;renderSettings()});
+ if(q("pwForm"))q("pwForm").addEventListener("submit",event=>{
+  event.preventDefault();
+  const cur=q("pwCurrent").value,next=q("pwNew").value,confirm=q("pwConfirm").value;
+  if(!cur||!next||!confirm){showAlert("Please fill in all required fields before continuing.");return}
+  if(cur!==currentUser.password){showAlert("Your current password is incorrect.");return}
+  if(next.length<6){showAlert("Password must contain at least 6 characters.");return}
+  if(next!==confirm){showAlert("The new passwords do not match.");return}
+  saveUserSettings({password:next});
+  pwFormOpen=false;renderSettings();showAlert("Your password has been updated.");
+ });
+ if(q("accountForm"))q("accountForm").addEventListener("submit",event=>{
+  event.preventDefault();
+  saveUserSettings({language:q("setLang").value,timezone:q("setTz").value});
+  showAlert("Your settings have been saved.");
+ });
+ if(q("appearanceForm"))q("appearanceForm").addEventListener("submit",event=>{
+  event.preventDefault();
+  saveUserSettings({fontSize:q("setFont").value});
+  showAlert("Your settings have been saved.");
+ });
+ dashContent.querySelectorAll(".capsule").forEach(b=>b.addEventListener("click",()=>{const on=!b.classList.contains("on");b.classList.toggle("on",on);b.setAttribute("aria-pressed",String(on));b.textContent=on?"On":"Off"}));
+ q("clearSession").addEventListener("click",leaveApp);
+}
+const KB_CATS=["All Articles","Network","Hardware","Software","Account","Other"];
+const KB_ARTICLES=[
+{id:1,title:"How to connect to Wi-Fi on campus",cat:"Network",popular:true,views:"2.6k",summary:"Select the campus network, sign in with your student account, and accept the security certificate if prompted."},
+{id:2,title:"Can't connect to Wi-Fi",cat:"Network",summary:"Check that Wi-Fi is enabled, reconnect to the correct network, and restart your device if needed."},
+{id:3,title:"Setting up the campus VPN",cat:"Network",summary:"Install the VPN client, sign in with your student account, and connect before accessing internal systems."},
+{id:4,title:"VPN keeps disconnecting",cat:"Network",summary:"Restart the VPN client, check your internet connection, and make sure no other VPN software is running."},
+{id:5,title:"Slow internet in the lab",cat:"Network",summary:"Close large downloads, restart the router if you can, and report the room number to support."},
+{id:6,title:"Connecting to the guest network",cat:"Network",summary:"Choose the guest network, accept the terms, and sign in with the code provided at the front desk."},
+{id:7,title:"Troubleshooting computer boot issues",cat:"Hardware",popular:true,views:"2.6k",summary:"Check the power cable and display, unplug external devices, and restart. Note any error message before contacting support."},
+{id:8,title:"Connecting a projector or monitor",cat:"Hardware",summary:"Check the cable at both ends, select the correct input source, and press the display shortcut on your keyboard."},
+{id:9,title:"Printer not working",cat:"Hardware",summary:"Confirm the printer is on and connected, clear the print queue, and restart the printer before sending again."},
+{id:10,title:"Keyboard and mouse not responding",cat:"Hardware",summary:"Reconnect the USB or Bluetooth device, try another port, and replace the batteries if the device is wireless."},
+{id:11,title:"Computer running slowly",cat:"Hardware",summary:"Close unused applications, restart your computer, and check whether storage is almost full."},
+{id:12,title:"Installing software (step-by-step)",cat:"Software",popular:true,views:"2.6k",summary:"Request the software through a ticket, wait for approval, and install it only from the official source."},
+{id:13,title:"Installing Microsoft Office",cat:"Software",summary:"Sign in with your student account on the Office portal and download the version assigned to you."},
+{id:14,title:"Fixing application crashes",cat:"Software",summary:"Restart the application, update it to the latest version, and note the steps that led to the crash."},
+{id:15,title:"Software license activation",cat:"Software",summary:"Sign in with your student account and enter the license key provided by the IT office."},
+{id:16,title:"Updating your software",cat:"Software",summary:"Save your work, open the update settings of the application, and restart when the update finishes."},
+{id:17,title:"Resetting your password",cat:"Account",popular:true,views:"2.6k",summary:"Use the Forgot password link on the login page, or submit a ticket if you no longer have access to your email."},
+{id:18,title:"Account locked out",cat:"Account",summary:"Wait 15 minutes after several failed sign-in attempts, then try again. Contact support if the lock remains."},
+{id:19,title:"Email not syncing",cat:"Account",summary:"Check your internet connection, remove and re-add the account, and confirm your password is up to date."},
+{id:20,title:"Requesting access to a system",cat:"Account",summary:"Submit a ticket with the system name, your role, and your supervisor's name so the request can be reviewed."},
+{id:21,title:"Requesting an IT service",cat:"Other",summary:"Choose the General inquiry type when creating a ticket and describe the service you need."},
+{id:22,title:"Reporting a security concern",cat:"Other",summary:"Submit a Critical priority ticket right away and avoid clicking links in suspicious messages."},
+{id:23,title:"Getting help after office hours",cat:"Other",summary:"You can submit a ticket at any time. Urgent issues will be handled by the IT support desk on the next business day."},
+{id:24,title:"Lost or found equipment",cat:"Other",summary:"Report the item with its serial number and last known location so the IT office can track it."}
+];
+let kbCat="All Articles",kbQuery="";
+const KB_ICON='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg>';
+function renderKnowledge(){
+ const q=kbQuery.toLowerCase();
+ const match=a=>(kbCat==="All Articles"||a.cat===kbCat)&&(!q||[a.title,a.cat,a.summary].join(" ").toLowerCase().includes(q));
+ const count=c=>KB_ARTICLES.filter(a=>c==="All Articles"||a.cat===c).length;
+ const popular=KB_ARTICLES.filter(a=>a.popular&&match(a));
+ const list=popular.length?popular:KB_ARTICLES.filter(match);
+ const heading=popular.length?"Popular Articles":"Articles";
+ dashContent.innerHTML=`<div class="kb-wrap">
+<div class="kb-cats">${KB_CATS.map(c=>`<button type="button" class="kb-cat${kbCat===c?" active":""}" data-kbcat="${escapeHTML(c)}"><span>${escapeHTML(c)}</span><b>${count(c)}</b></button>`).join("")}</div>
+<div class="kb-main">
+<div class="kb-card"><h3>${heading}</h3>${list.length?list.map(a=>`<button type="button" class="kb-art" data-kbart="${a.id}"><span class="kb-ic">${KB_ICON}</span><span class="kb-art-text"><b>${escapeHTML(a.title)}</b><small>${escapeHTML(a.cat)}${a.views?`<i>${a.views} views</i>`:""}</small></span></button>`).join(""):`<div class="empty-state">No articles match your search.</div>`}</div>
+<div class="kb-help"><h3>Still need help?</h3><p>Can't find what you're looking for? Submit a ticket and our team will assist you.</p><button type="button" class="dash-action" data-go="create">Create Ticket</button></div>
+</div></div>`;
+ dashContent.querySelectorAll("[data-kbcat]").forEach(b=>b.addEventListener("click",()=>{kbCat=b.dataset.kbcat;renderKnowledge();bindGo()}));
+ dashContent.querySelectorAll("[data-kbart]").forEach(b=>b.addEventListener("click",()=>{const a=KB_ARTICLES.find(x=>x.id===Number(b.dataset.kbart));showAlert(a.title+": "+a.summary)}));
+}
+const NOTIF_STYLE={
+ ticket:{bg:"#fde3e3",fg:"#d33a3a",dot:"#f0605f",icon:'<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M12 16V8M8 12l4-4 4 4"/>'},
+ message:{bg:"#dbeafe",fg:"#2f6aa8",dot:"#5b9be8",icon:'<path d="M4 5h16v11H9l-5 4z"/>'},
+ resolved:{bg:"#d4f5dc",fg:"#2a7a3b",dot:"#3cc254",icon:'<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>'},
+ system:{bg:"#ebe0fb",fg:"#6a3fb8",dot:"#9a6fe0",icon:'<circle cx="12" cy="13" r="7"/><path d="M12 9v4l2 2M5 4L3 6M19 4l2 2"/>'},
+ article:{bg:"#ececec",fg:"#666",dot:"#9a9a9a",icon:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>'}
+};
+let NOTIFS=[
+{id:1,type:"ticket",title:"Ticket updated",text:"TCK-1023 has been moved to In Progress.",date:"2026-10-03T07:35:00",unread:true},
+{id:2,type:"message",title:"New message",text:"Mikaelo replied to your ticket TCK-1023.",date:"2026-10-01T07:35:00",unread:true},
+{id:3,type:"resolved",title:"Ticket resolved",text:"TCK-1034 has been resolved.",date:"2026-10-05T07:35:00",unread:false},
+{id:4,type:"system",title:"System maintenance",text:"Scheduled maintenance on Oct. 10, 2026 (10:00 AM – 12:00 PM).",date:"2026-10-06T07:35:00",unread:false},
+{id:5,type:"article",title:"New article",text:"Check out our new article: Resetting your password.",date:"2026-10-01T07:35:00",unread:false}
+];
+let notifTab="All";
+const NOTIF_TABS={All:()=>true,Unread:n=>n.unread,System:n=>n.type==="system",Tickets:n=>["ticket","message","resolved"].includes(n.type)};
+function renderNotifications(){
+ const labels={All:"All",Unread:`Unread(${NOTIFS.filter(n=>n.unread).length})`,System:"System",Tickets:"Tickets"};
+ const list=NOTIFS.filter(NOTIF_TABS[notifTab]);
+ dashContent.innerHTML=`<div class="tk-wrap"><div class="tk-tabs">${Object.keys(NOTIF_TABS).map(k=>`<button type="button" class="tk-tab${notifTab===k?" active":""}" data-ntab="${k}">${labels[k]}</button>`).join("")}</div>
+<div class="nt-list">${list.length?list.map(n=>{const s=NOTIF_STYLE[n.type];return `<button type="button" class="nt-row${n.unread?" unread":""}" data-nid="${n.id}"><span class="nt-ic" style="background:${s.bg};color:${s.fg}"><svg viewBox="0 0 24 24">${s.icon}</svg></span><span class="nt-text"><b>${escapeHTML(n.title)}</b><small>${escapeHTML(n.text)}</small></span><span class="nt-meta"><em>${escapeHTML(fmtDate(n.date))}</em><i class="tk-dot" style="background:${s.dot}"></i></span></button>`}).join(""):`<div class="empty-state nt-empty">No notifications yet.</div>`}</div></div>`;
+ dashContent.querySelectorAll("[data-ntab]").forEach(b=>b.addEventListener("click",()=>{notifTab=b.dataset.ntab;renderNotifications()}));
+ dashContent.querySelectorAll("[data-nid]").forEach(b=>b.addEventListener("click",()=>{const n=NOTIFS.find(x=>x.id===Number(b.dataset.nid));n.unread=false;renderNotifications()}));
+}
+loginTab.addEventListener("click",showLogin);
+signupTab.addEventListener("click",showSignup);
+document.getElementById("switchToSignup").addEventListener("click",event=>{event.preventDefault();showSignup()});
+document.getElementById("switchToLogin").addEventListener("click",event=>{event.preventDefault();showLogin()});
+document.getElementById("forgotLink").addEventListener("click",event=>{event.preventDefault();emailOverlay.classList.remove("hidden")});
+document.getElementById("emailOkay").addEventListener("click",()=>emailOverlay.classList.add("hidden"));
+loginForm.addEventListener("submit",event=>{
+ event.preventDefault();
+ const emailOrUsername=document.getElementById("loginUser").value.trim().toLowerCase();
+ const password=document.getElementById("loginPassword").value;
+ if(!emailOrUsername||!password){showAlert("Please fill in all required fields before continuing.");return}
+ const user=readUsers().find(account=>(account.email.toLowerCase()===emailOrUsername||account.username.toLowerCase()===emailOrUsername)&&account.password===password);
+ if(!user){showAlert("Account not found or password is incorrect. Sign up first if you don't have an account.");return}
+ enterApp(user);
+});
+signupForm.addEventListener("submit",event=>{
+ event.preventDefault();
+ const username=document.getElementById("signupUsername").value.trim();
+ const studentNumber=document.getElementById("studentNumber").value.trim();
+ const contactNumber=document.getElementById("contactNumber").value.trim();
+ const email=document.getElementById("signupEmail").value.trim().toLowerCase();
+ const password=document.getElementById("signupPassword").value;
+ if(!username||!studentNumber||!contactNumber||!email||!password){showAlert("Please fill in all required fields before continuing.");return}
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showAlert("Please enter a valid email address.");return}
+ if(password.length<6){showAlert("Password must contain at least 6 characters.");return}
+ const users=readUsers();
+ if(users.some(account=>account.email.toLowerCase()===email)){showAlert("An account with this email already exists. Please log in.");return}
+ if(users.some(account=>account.username.toLowerCase()===username.toLowerCase())){showAlert("That username is already taken. Please choose another.");return}
+ const user={username,studentNumber,contactNumber,email,password};
+ users.push(user);saveUsers(users);enterApp(user);
+});
+document.querySelectorAll(".dash-nav button").forEach(button=>button.addEventListener("click",()=>{ticketUI={tab:"All",cat:"All Categories",sort:"new",prio:"All",menu:false};searchQuery="";kbQuery="";document.getElementById("globalSearch").value="";renderPage(button.dataset.page)}));
+document.getElementById("backBtn").addEventListener("click",()=>{if(currentPage==="create"&&wz&&wz.step>1){wz.step--;renderCreate();return}renderPage(navHistory.length?navHistory.pop():"home",true)});
+document.getElementById("bellBtn").addEventListener("click",()=>renderPage("notifications"));
+document.getElementById("globalSearch").addEventListener("keydown",event=>{if(event.key==="Enter"){if(currentPage==="knowledge"){kbQuery=event.target.value.trim();renderKnowledge();return}searchQuery=event.target.value.trim();renderPage("tickets")}});
+document.getElementById("logoutButton").addEventListener("click",leaveApp);
+document.getElementById("alertOkay").addEventListener("click",closeAlert);
+document.getElementById("alertCancel").addEventListener("click",closeAlert);
+emailOverlay.addEventListener("click",event=>{if(event.target===emailOverlay)emailOverlay.classList.add("hidden")});
+alertOverlay.addEventListener("click",event=>{if(event.target===alertOverlay)closeAlert()});
+document.addEventListener("keydown",event=>{if(event.key==="Escape"){closeAlert();emailOverlay.classList.add("hidden")}});
+const savedEmail=sessionStorage.getItem("helpdesk_session");
+if(savedEmail){const savedUser=readUsers().find(user=>user.email===savedEmail);if(savedUser)enterApp(savedUser)}
+</script>
+</body>
+</html>
